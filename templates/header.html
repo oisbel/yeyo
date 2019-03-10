@@ -1,0 +1,23 @@
+<div class="row top-menu banner main">
+	<div class="col-md-12">
+		<h1>Tiros</h1>
+	</div>
+	<div class="row">
+	    <div class="col-md-6">
+		    <a href="{{url_for('showMain')}}" target="_blank>
+		            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>Main
+            </a>
+	    </div>
+	    <div class="col-md-6 text-right">
+	        {%if 'username' not in session %}
+		        <a>
+		            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>Login
+                </a>
+		    {% else %}
+		        <a>
+		            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>Logout
+                </a>
+		    {% endif %}
+	    </div>
+	</div>
+</div>
