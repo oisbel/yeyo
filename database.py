@@ -63,9 +63,9 @@ class Tiro(Base):
 	__tablename__ = "tiro"
 
 	id = Column(Integer, primary_key = True) # posicion del tiro
-	fecha = Column(String(10), default = '') # Formato : 04/07/1991
-	hora = Column(String(1), default = '') # Formato : N
-	tiro = Column(String(9), default = '') # Formato : 905-02-30
+	fecha = Column(String(50), default = '') # Formato : 04/07/1991
+	hora = Column(String(10), default = '') # Formato : N
+	tiro = Column(String(50), default = '') # Formato : 905-02-30
 
 	@property
 	def serialize(self):
@@ -82,7 +82,7 @@ class Play(Base):
 	__tablename__ = "play"
 
 	id = Column(Integer, primary_key = True)
-	fecha = Column(String(10),default = '')
+	fecha = Column(String(50),default = '')
 	# Formato : 04/07/1991/N
 	fijos = Column(String(250),default = '')
 	corridos = Column(String(250),default = '')
