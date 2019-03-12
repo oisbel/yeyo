@@ -37,9 +37,9 @@ Session = scoped_session(session_factory)
 
 @app.route('/')
 def showMain():
-       return redirect('/tiros/30')
+       return redirect('/showtiros/30')
 
-@app.route('/tiros/<int:count>')
+@app.route('/showtiros/<int:count>')
 def showTiros(count):
        """ Muestra los ultimos count tiros ordenados por el mayor id"""
        session = Session()
@@ -47,7 +47,7 @@ def showTiros(count):
        return render_template(
               'tiros.html', tiros = tiros)
 
-@app.route('/last/<int:count>')
+@app.route('/showlast/<int:count>')
 def showLastTiros(count):
        """ Muestra los ultimos count tiros ordenados por el menor id"""
        session = Session()
@@ -55,7 +55,7 @@ def showLastTiros(count):
        return render_template(
               'tiros.html', tiros = tiros)
 
-@app.route('/tiros/all')
+@app.route('/showtiros/all')
 def showAllTiros():
        """ Muestra todos tiros ordenados por el menor id"""
        session = Session()
@@ -178,6 +178,55 @@ def edit_play(play_id):
               return jsonify({'message':'Error in characters'})
        return jsonify({ 'play': play.id })#, 201 # 201 mean resource created
 
+# JSON api to get all tiros for the user who provides credentials
+@app.route('/tiros/all', methods = ['GET'])
+@auth.login_required
+def getAllTirosJSON():
+       session = Session()
+       result={'status':'ok'}
+       try:
+              tiros = session.query(Tiro).all()
+              tiro_list = []
+              for tiro in tiros:
+                     tiro_list.append(tiro.serialize)
+              temp = {'list':tiro_list}
+              result.update(temp)
+       except:
+              result['status'] = 'fail'
+       return jsonify(Tiros=result)
+# JSON api to get the last count tiros for the user who provides credentials
+@app.route('/tiros/<int:count>', methods = ['GET'])
+@auth.login_required
+def getLastTirosJSON(count):
+       session = Session()
+       result={'status':'ok'}
+       try:
+              tiros = session.query(Tiro).order_by(Tiro.id.desc())[:count]
+              tiro_list = []
+              for tiro in tiros:
+                     tiro_list.append(tiro.serialize)
+              temp = {'list':tiro_list}
+              result.update(temp)
+       except:
+              result['status'] = 'fail'
+       return jsonify(Tiros=result)
+
+# JSON api to get the 60 last tiros
+@app.route('/tiros', methods = ['GET'])
+def getTirosJSON():
+       count = 60
+       session = Session()
+       result={'status':'ok'}
+       try:
+              tiros = session.query(Tiro).order_by(Tiro.id.desc())[:count]
+              tiro_list = []
+              for tiro in tiros:
+                     tiro_list.append(tiro.serialize)
+              temp = {'list':tiro_list}
+              result.update(temp)
+       except:
+              result['status'] = 'fail'
+       return jsonify(Tiros=result)
 
 # JSON api to get plays for the user who provides credentials
 @app.route('/plays', methods = ['GET'])
