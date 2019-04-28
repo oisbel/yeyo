@@ -57,5 +57,9 @@ with open(filepath) as fp:
 		session.add(tiro)
 		session.commit()
 
+status = Status(countTiros=14156, countUsers=2, countPlays=1)
+
+session.add(status)
+session.commit()
 
 print "Added Items!"
