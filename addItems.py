@@ -3,7 +3,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from database import Base, User, Tiro, Play
+from database import Base, User, Tiro, Play, Status
 
 engine = create_engine('sqlite:///yeyo.db')
 # engine = create_engine('postgresql://yeyo:Vryyo_18@localhost/yeyo')

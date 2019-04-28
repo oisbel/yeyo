@@ -9,7 +9,7 @@ from flask import abort, g
 from sqlalchemy import create_engine, asc, desc
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import scoped_session
-from database import Base, User, Tiro, Play
+from database import Base, User, Tiro, Play, Status
 
 # For anti-forgery
 from flask import session as login_session
@@ -194,15 +194,24 @@ def getAllTirosJSON():
        except:
               result['status'] = 'fail'
        return jsonify(Tiros=result)
-# JSON api to get the last count tiros for the user who provides credentials
-@app.route('/tiros/<int:count>', methods = ['GET'])
+# JSON api to get the last tiros a partir de position for the user who provides credentials
+@app.route('/tiros/<int:position>', methods = ['GET'])
 @auth.login_required
-def getLastTirosJSON(count):
+def getLastTirosJSON(position):
        session = Session()
        result={'status':'ok'}
+       tiro_list = []
+       
+       totalTiros = session.query(Status).first().countTiros;
+       if position >= totalTiros:
+              temp = {'list':tiro_list}
+              result.update(temp)
+              return jsonify(Tiros=result)
+       
+       count = totalTiros - position;
+	   
        try:
-              tiros = session.query(Tiro).order_by(Tiro.id.desc())[:count]
-              tiro_list = []
+              tiros = session.query(Tiro).order_by(Tiro.id.desc()).limit(count).all()              
               for tiro in tiros:
                      tiro_list.append(tiro.serialize)
               temp = {'list':tiro_list}
