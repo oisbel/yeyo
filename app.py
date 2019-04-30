@@ -194,7 +194,7 @@ def getAllTirosJSON():
        except:
               result['status'] = 'fail'
        return jsonify(Tiros=result)
-# JSON api to get the last tiros a partir de position for the user who provides credentials
+# JSON api to get the last tiros a partir de position, devuelve desde position + 1 to the last one
 @app.route('/tiros/<int:position>', methods = ['GET'])
 @auth.login_required
 def getLastTirosJSON(position):
@@ -202,7 +202,7 @@ def getLastTirosJSON(position):
        result={'status':'ok'}
        tiro_list = []
        
-       totalTiros = session.query(Status).first().countTiros;
+       totalTiros = session.query(Status).first().countTiros
        if position >= totalTiros:
               temp = {'list':tiro_list}
               result.update(temp)
@@ -236,6 +236,29 @@ def getTirosJSON():
        except:
               result['status'] = 'fail'
        return jsonify(Tiros=result)
+
+@app.route('/addtiros', methods = ['POST'])
+@auth.login_required
+def new_tiros():
+       """ Agrega un tiro"""
+       session = Session()
+       pin = request.json.get('pin','')
+       tiros = request.json.get('tiros',[]) # "tiros":[ "04/07/1991/N-905-02-30", , , "27/04/2019/N-728-46-98" ]
+
+       if g.user.email != "oisbelsimpv@gmail.com" or pin != 9229:
+              return jsonify({'message':'No autorizado para agregar tiros'})#, 200
+       
+       status = session.query(Status).first()
+       totalTiros = status.countTiros + len(tiros);
+       for line in tiros:
+              tiro = Tiro(fecha=line[:10], hora=line[11:12], tiro=line[13:])
+              session.add(tiro)
+              session.commit()
+       
+       status.countTiros = totalTiros
+       session.add(status)
+       session.commit()
+       return jsonify({ 'totalTiros': totalTiros})
 
 # JSON api to get plays for the user who provides credentials
 @app.route('/plays', methods = ['GET'])
