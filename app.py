@@ -211,7 +211,7 @@ def getLastTirosJSON(position):
        count = totalTiros - position;
 	   
        try:
-              tiros = session.query(Tiro).order_by(Tiro.id.desc()).limit(count).all()              
+              tiros = session.query(Tiro).order_by(Tiro.id.desc()).limit(count).all()[::-1]              
               for tiro in tiros:
                      tiro_list.append(tiro.serialize)
               temp = {'list':tiro_list}
