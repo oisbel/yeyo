@@ -37,7 +37,7 @@ session.commit()
 
 # Un play de prueba
 play1 = Play(
-    fecha= '07/03/2019/D',
+    fecha= '10/06/2019/D',
     fijos='25:3,67:10',
 	corridos='00:1,67:20',
 	parles='00-87:1,87-45:50',
@@ -57,7 +57,7 @@ with open(filepath) as fp:
 		session.add(tiro)
 		session.commit()
 
-status = Status(countTiros=14160, countUsers=2, countPlays=1)
+status = Status(countTiros=14246, countUsers=2, countPlays=1)
 
 session.add(status)
 session.commit()

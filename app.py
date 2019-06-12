@@ -295,7 +295,7 @@ def getPlayJSON():
               result['status'] = 'fail'
        return jsonify(Play=result)
 
-# JSON api to get the user information base in the email
+# JSON api to get the user information base in the email, para logearse
 @app.route('/getuser')
 @auth.login_required
 def getUserDataJSON():
