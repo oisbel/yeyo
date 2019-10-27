@@ -54,7 +54,7 @@ def showLastTiros(count):
        session = Session()
        tiros = session.query(Tiro).order_by(-Tiro.id.desc())[-count:]
        session.close()
-	   return render_template(
+       return render_template(
               'tiros.html', tiros = tiros)
 
 @app.route('/showtiros/all')
@@ -181,7 +181,7 @@ def edit_play(play_id):
               session.commit()
        except:
               session.close()
-			  return jsonify({'message':'Error in characters'})
+              return jsonify({'message':'Error in characters'})
        return jsonify({ 'play': play.id })#, 201 # 201 mean resource created
 
 # JSON api to get all tiros for the user who provides credentials
