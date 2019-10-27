@@ -44,7 +44,8 @@ def showTiros(count):
        """ Muestra los ultimos count tiros ordenados por el mayor id"""
        session = Session()
        tiros = session.query(Tiro).order_by(Tiro.id.desc())[:count]
-       return render_template(
+       session.close()
+	   return render_template(
               'tiros.html', tiros = tiros)
 
 @app.route('/showlast/<int:count>')
@@ -52,7 +53,8 @@ def showLastTiros(count):
        """ Muestra los ultimos count tiros ordenados por el menor id"""
        session = Session()
        tiros = session.query(Tiro).order_by(-Tiro.id.desc())[-count:]
-       return render_template(
+       session.close()
+	   return render_template(
               'tiros.html', tiros = tiros)
 
 @app.route('/showtiros/all')
@@ -60,6 +62,7 @@ def showAllTiros():
        """ Muestra todos tiros ordenados por el menor id"""
        session = Session()
        tiros = session.query(Tiro).all()
+	   session.close()
        return render_template(
               'tiros.html', tiros = tiros)
 			  
@@ -73,15 +76,17 @@ def verify_password(username_or_token, password):
        user_id = User.verify_auth_token(username_or_token)
        if user_id:
               user = session.query(User).filter_by(id = user_id).one()			  
+			  session.close()
        else: # No es un token sino credenciales de usuario(siempre el email y password)
               try:
                      user = session.query(User).filter_by(email = username_or_token).one()
-                     if not user or not user.verify_password(password):
+                     session.close()
+					 if not user or not user.verify_password(password):
                             return False
               except: #Era un token invalido
                      return False
        g.user = user
-       return True
+	   return True
 
 @app.route('/token')
 @auth.login_required
@@ -175,7 +180,8 @@ def edit_play(play_id):
               session.add(play)
               session.commit()
        except:
-              return jsonify({'message':'Error in characters'})
+              session.close()
+			  return jsonify({'message':'Error in characters'})
        return jsonify({ 'play': play.id })#, 201 # 201 mean resource created
 
 # JSON api to get all tiros for the user who provides credentials
@@ -193,7 +199,8 @@ def getAllTirosJSON():
               result.update(temp)
        except:
               result['status'] = 'fail'
-       return jsonify(Tiros=result)
+       session.close()
+	   return jsonify(Tiros=result)
 # JSON api to get the last tiros a partir de position, devuelve desde position + 1 to the last one
 @app.route('/tiros/<int:position>', methods = ['GET'])
 @auth.login_required
@@ -218,7 +225,8 @@ def getLastTirosJSON(position):
               result.update(temp)
        except:
               result['status'] = 'fail'
-       return jsonify(Tiros=result)
+       session.close()
+	   return jsonify(Tiros=result)
 
 # JSON api to get the 60 last tiros
 @app.route('/tiros', methods = ['GET'])
@@ -235,7 +243,8 @@ def getTirosJSON():
               result.update(temp)
        except:
               result['status'] = 'fail'
-       return jsonify(Tiros=result)
+       session.close()
+	   return jsonify(Tiros=result)
 
 @app.route('/addtiros', methods = ['POST'])
 @auth.login_required
@@ -277,7 +286,8 @@ def getPlaysJSON():
               result.update(temp)
        except:
               result['status'] = 'fail'
-       return jsonify(Plays=result)
+       session.close()
+	   return jsonify(Plays=result)
 
 # JSON api to get the play base in the play id (/play?play_id=a)
 @app.route('/play', methods = ['GET'])
@@ -293,7 +303,8 @@ def getPlayJSON():
               result.update(play.serialize)
        except:
               result['status'] = 'fail'
-       return jsonify(Play=result)
+       session.close()
+	   return jsonify(Play=result)
 
 # JSON api to get the user information base in the email, para logearse
 @app.route('/getuser')
@@ -307,7 +318,8 @@ def getUserDataJSON():
               result.update(user.serialize)
        except:
               result['status'] = 'fail'
-       return jsonify(result)
+       session.close()
+	   return jsonify(result)
 
 if __name__ == '__main__':
     app.secret_key = '88040422507vryyo'
