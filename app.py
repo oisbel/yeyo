@@ -45,7 +45,7 @@ def showTiros(count):
        session = Session()
        tiros = session.query(Tiro).order_by(Tiro.id.desc())[:count]
        session.close()
-	   return render_template(
+       return render_template(
               'tiros.html', tiros = tiros)
 
 @app.route('/showlast/<int:count>')
@@ -62,7 +62,7 @@ def showAllTiros():
        """ Muestra todos tiros ordenados por el menor id"""
        session = Session()
        tiros = session.query(Tiro).all()
-	   session.close()
+       session.close()
        return render_template(
               'tiros.html', tiros = tiros)
 			  
@@ -76,17 +76,17 @@ def verify_password(username_or_token, password):
        user_id = User.verify_auth_token(username_or_token)
        if user_id:
               user = session.query(User).filter_by(id = user_id).one()			  
-			  session.close()
+              session.close()
        else: # No es un token sino credenciales de usuario(siempre el email y password)
               try:
                      user = session.query(User).filter_by(email = username_or_token).one()
                      session.close()
-					 if not user or not user.verify_password(password):
+                     if not user or not user.verify_password(password):
                             return False
               except: #Era un token invalido
                      return False
        g.user = user
-	   return True
+       return True
 
 @app.route('/token')
 @auth.login_required
@@ -200,7 +200,7 @@ def getAllTirosJSON():
        except:
               result['status'] = 'fail'
        session.close()
-	   return jsonify(Tiros=result)
+       return jsonify(Tiros=result)
 # JSON api to get the last tiros a partir de position, devuelve desde position + 1 to the last one
 @app.route('/tiros/<int:position>', methods = ['GET'])
 @auth.login_required
@@ -226,7 +226,7 @@ def getLastTirosJSON(position):
        except:
               result['status'] = 'fail'
        session.close()
-	   return jsonify(Tiros=result)
+       return jsonify(Tiros=result)
 
 # JSON api to get the 60 last tiros
 @app.route('/tiros', methods = ['GET'])
@@ -244,7 +244,7 @@ def getTirosJSON():
        except:
               result['status'] = 'fail'
        session.close()
-	   return jsonify(Tiros=result)
+       return jsonify(Tiros=result)
 
 @app.route('/addtiros', methods = ['POST'])
 @auth.login_required
@@ -287,7 +287,7 @@ def getPlaysJSON():
        except:
               result['status'] = 'fail'
        session.close()
-	   return jsonify(Plays=result)
+       return jsonify(Plays=result)
 
 # JSON api to get the play base in the play id (/play?play_id=a)
 @app.route('/play', methods = ['GET'])
@@ -304,7 +304,7 @@ def getPlayJSON():
        except:
               result['status'] = 'fail'
        session.close()
-	   return jsonify(Play=result)
+       return jsonify(Play=result)
 
 # JSON api to get the user information base in the email, para logearse
 @app.route('/getuser')
@@ -319,7 +319,7 @@ def getUserDataJSON():
        except:
               result['status'] = 'fail'
        session.close()
-	   return jsonify(result)
+       return jsonify(result)
 
 if __name__ == '__main__':
     app.secret_key = '88040422507vryyo'
