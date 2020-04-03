@@ -6,7 +6,7 @@ from flask import jsonify
 from flask import abort, g
 
 # For database
-from sqlalchemy import create_engine, asc, desc
+from sqlalchemy import create_engine, asc, desc, func
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import scoped_session
 from database import Base, User, Tiro, Play, Status
@@ -37,7 +37,25 @@ Session = scoped_session(session_factory)
 
 @app.route('/')
 def showMain():
-       return redirect('/showtiros/30')
+       session = Session()
+       q = session.query(Tiro)
+       count = 60
+       tiros = session.query(Tiro).order_by(Tiro.id.desc()).limit(count).all()
+       #[::-1]  
+       session.close()
+       return render_template('index.html',tiros = tiros)
+
+@app.route('/about')
+def showAbout():
+       return render_template('about.html')
+
+@app.route('/contact')
+def showContact():
+       return render_template('contact.html')
+
+@app.route('/statistics')
+def showStatistics():
+       return render_template('statistics.html')
 
 @app.route('/showtiros/<int:count>')
 def showTiros(count):
@@ -65,6 +83,9 @@ def showAllTiros():
        session.close()
        return render_template(
               'tiros.html', tiros = tiros)
+
+
+## Endpoints par app y servicios web
 			  
 @auth.verify_password
 def verify_password(username_or_token, password):
@@ -184,68 +205,6 @@ def edit_play(play_id):
               return jsonify({'message':'Error in characters'})
        return jsonify({ 'play': play.id })#, 201 # 201 mean resource created
 
-# JSON api to get all tiros for the user who provides credentials
-@app.route('/tiros/all', methods = ['GET'])
-@auth.login_required
-def getAllTirosJSON():
-       session = Session()
-       result={'status':'ok'}
-       try:
-              tiros = session.query(Tiro).all()
-              tiro_list = []
-              for tiro in tiros:
-                     tiro_list.append(tiro.serialize)
-              temp = {'list':tiro_list}
-              result.update(temp)
-       except:
-              result['status'] = 'fail'
-       session.close()
-       return jsonify(Tiros=result)
-# JSON api to get the last tiros a partir de position, devuelve desde position + 1 to the last one
-@app.route('/tiros/<int:position>', methods = ['GET'])
-@auth.login_required
-def getLastTirosJSON(position):
-       session = Session()
-       result={'status':'ok'}
-       tiro_list = []
-       
-       totalTiros = session.query(Status).first().countTiros
-       if position >= totalTiros:
-              temp = {'list':tiro_list}
-              result.update(temp)
-              return jsonify(Tiros=result)
-       
-       count = totalTiros - position;
-	   
-       try:
-              tiros = session.query(Tiro).order_by(Tiro.id.desc()).limit(count).all()[::-1]              
-              for tiro in tiros:
-                     tiro_list.append(tiro.serialize)
-              temp = {'list':tiro_list}
-              result.update(temp)
-       except:
-              result['status'] = 'fail'
-       session.close()
-       return jsonify(Tiros=result)
-
-# JSON api to get the 60 last tiros
-@app.route('/tiros', methods = ['GET'])
-def getTirosJSON():
-       count = 60
-       session = Session()
-       result={'status':'ok'}
-       try:
-              tiros = session.query(Tiro).order_by(Tiro.id.desc())[:count]
-              tiro_list = []
-              for tiro in tiros:
-                     tiro_list.append(tiro.serialize)
-              temp = {'list':tiro_list}
-              result.update(temp)
-       except:
-              result['status'] = 'fail'
-       session.close()
-       return jsonify(Tiros=result)
-
 @app.route('/addtiros', methods = ['POST'])
 @auth.login_required
 def new_tiros():
@@ -268,6 +227,57 @@ def new_tiros():
        session.add(status)
        session.commit()
        return jsonify({ 'totalTiros': totalTiros})
+
+# JSON api to get all tiros for the user who provides credentials
+@app.route('/tiros/all', methods = ['GET'])
+@auth.login_required
+def getAllTirosJSON():
+       session = Session()
+       result={'status':'ok'}
+       try:
+              tiros = session.query(Tiro).all()
+              tiro_list = []
+              for tiro in tiros:
+                     tiro_list.append(tiro.serialize)
+              temp = {'list':tiro_list}
+              result.update(temp)
+       except:
+              result['status'] = 'fail'
+       session.close()
+       return jsonify(Tiros=result)
+
+# Funcion aux para de manera rapida obtener la cantidad de rows de la tabla
+def getTirosCount(q):
+	count_q = q.statement.with_only_columns([func.count()]).order_by(None)
+	count = q.session.execute(count_q).scalar()
+	return count
+
+# JSON api to get the last tiros a partir de position, devuelve desde position + 1 to the last one
+@app.route('/tiros/<int:position>', methods = ['GET'])
+@auth.login_required
+def getLastTirosJSON(position):
+       session = Session()
+       result={'status':'ok'}
+       tiro_list = []
+       q = session.query(Tiro)
+       totalTiros = getTirosCount(q)
+       if position > totalTiros:
+              temp = {'list':tiro_list}
+              result.update(temp)
+              session.close()
+              return jsonify(Tiros=result)
+       
+       count = totalTiros - position;
+       try:
+              tiros = session.query(Tiro).order_by(Tiro.id.desc()).limit(count+1).all()[::-1]              
+              for tiro in tiros:
+                     tiro_list.append(tiro.serialize)
+              temp = {'list':tiro_list}
+              result.update(temp)
+       except:
+              result['status'] = 'fail'
+       session.close()
+       return jsonify(Tiros=result)
 
 # JSON api to get plays for the user who provides credentials
 @app.route('/plays', methods = ['GET'])
