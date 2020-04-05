@@ -9,7 +9,7 @@ from flask import abort, g
 from sqlalchemy import create_engine, asc, desc, func
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import scoped_session
-from database import Base, User, Tiro, Play, Status
+from database import Base, User, Tiro, Play
 
 # For anti-forgery
 from flask import session as login_session
@@ -216,16 +216,14 @@ def new_tiros():
        if g.user.email != "oisbelsimpv@gmail.com" or pin != 9229:
               return jsonify({'message':'No autorizado para agregar tiros'})#, 200
        
-       status = session.query(Status).first()
-       totalTiros = status.countTiros + len(tiros);
        for line in tiros:
               tiro = Tiro(fecha=line[:10], hora=line[11:12], tiro=line[13:])
               session.add(tiro)
               session.commit()
        
-       status.countTiros = totalTiros
-       session.add(status)
-       session.commit()
+       q = session.query(Tiro)
+       totalTiros = getTirosCount(q)
+       
        return jsonify({ 'totalTiros': totalTiros})
 
 # JSON api to get all tiros for the user who provides credentials
@@ -254,7 +252,6 @@ def getTirosCount(q):
 
 # JSON api to get the last tiros a partir de position, devuelve desde position + 1 to the last one
 @app.route('/tiros/<int:position>', methods = ['GET'])
-@auth.login_required
 def getLastTirosJSON(position):
        session = Session()
        result={'status':'ok'}
@@ -262,22 +259,22 @@ def getLastTirosJSON(position):
        q = session.query(Tiro)
        totalTiros = getTirosCount(q)
        if position > totalTiros:
-              temp = {'list':tiro_list}
+              temp = {'tiros':tiro_list}
               result.update(temp)
               session.close()
-              return jsonify(Tiros=result)
+              return jsonify(result)
        
        count = totalTiros - position;
        try:
               tiros = session.query(Tiro).order_by(Tiro.id.desc()).limit(count+1).all()[::-1]              
               for tiro in tiros:
                      tiro_list.append(tiro.serialize)
-              temp = {'list':tiro_list}
+              temp = {'tiros':tiro_list}
               result.update(temp)
        except:
               result['status'] = 'fail'
        session.close()
-       return jsonify(Tiros=result)
+       return jsonify(result)
 
 # JSON api to get plays for the user who provides credentials
 @app.route('/plays', methods = ['GET'])

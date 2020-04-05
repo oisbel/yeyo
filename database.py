@@ -1,4 +1,4 @@
-# encoding: utf-8
+	# encoding: utf-8
 
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
@@ -107,24 +107,6 @@ class Play(Base):
 			'parles': self.parles,
 			'candados': self.candados,
 			'nota': self.nota
-		}		
-
-class Status(Base):
-	__tablename__ = "status"
-
-	id = Column(Integer, primary_key = True)
-	countTiros = Column(Integer, default = 0) # Cantidad de tiros insertados
-	countUsers = Column(Integer, default = 0) # Cantidad de usuarios creados
-	countPlays = Column(Integer, default = 0) # Cantidad de jugadas hechas
-
-	@property
-	def serialize(self):
-		"""Return status data in easily serializeable format"""
-		return {
-			'id': self.id,
-			'fecha': self.countTiros,
-			'hora': self.countUsers,
-			'tiro': self.countPlays
 		}
 
 engine = create_engine('sqlite:///yeyo.db')

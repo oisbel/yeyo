@@ -3,7 +3,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from database import Base, User, Tiro, Play, Status
+from database import Base, User, Tiro, Play
 
 engine = create_engine('sqlite:///yeyo.db')
 # engine = create_engine('postgresql://yeyo:Vryyo_18@localhost/yeyo')
@@ -53,13 +53,8 @@ filepath='tiros.txt'
 with open(filepath) as fp:
 	for cnt,line in enumerate(fp):
 		# print("Line {}: {}".format(cnt, line))
-		tiro=Tiro(fecha=line[:10], hora=line[11:12], tiro=line[13:])
+		tiro=Tiro(fecha=line[:10], hora=line[11:12], tiro=line[13:22])
 		session.add(tiro)
 		session.commit()
-
-status = Status(countTiros=14246, countUsers=2, countPlays=1)
-
-session.add(status)
-session.commit()
 
 print "Added Items!"
