@@ -217,7 +217,7 @@ def new_tiros():
               return jsonify({'message':'No autorizado para agregar tiros'})#, 200
        
        for line in tiros:
-              tiro = Tiro(fecha=line[:10], hora=line[11:12], tiro=line[13:])
+              tiro = Tiro(fecha=line[:10], hora=line[11:12], tiro=line[13:22])
               session.add(tiro)
               session.commit()
        
