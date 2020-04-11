@@ -63,7 +63,7 @@ class Tiro(Base):
 	__tablename__ = "tiro"
 
 	id = Column(Integer, primary_key = True) # posicion del tiro
-	fecha = Column(String(50), default = '') # Formato : 04/07/1991
+	fecha = Column(String(50), default = '') # Formato : 04/07/1991 d/m/y
 	hora = Column(String(10), default = '') # Formato : N
 	tiro = Column(String(50), default = '') # Formato : 905-02-30
 
